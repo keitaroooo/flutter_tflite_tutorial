@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:flutter/services.dart';
 
-void main() {
+import 'package:posenet_app/static_image/static.dart';
+
+List<CameraDescription> cameras = [];
+
+Future<void> main() async {
+  // Fetch the available cameras before initializing the app.
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    cameras = await availableCameras();
+  } on CameraException catch (e) {
+    logError(e.code, e.description);
+  }
+  // ruuning the app
   runApp(MyApp());
 }
 
@@ -11,80 +22,88 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Posenet App'),
+      home: MyHomePage(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, this.title}) : super(key: key);
-
-  final String? title;
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  CameraController? _controller;
-  bool _cameraInitialized = false;
-  String _topText = '';
-
-  @override
-  void initState() {
-    super.initState();
-    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-    _initializeCamera();
-  }
-
-  void _initializeCamera() async {
-    _topText = 'Waiting for camera initialization\n';
-    List<CameraDescription> cameras = await availableCameras();
-    _controller = CameraController(cameras[0], ResolutionPreset.medium);
-    _controller?.initialize().then((_) {
-      _cameraInitialized = true;
-      _topText = 'Camera Initialization complete\n';
-      setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
-        title: Text(widget.title!),
+        title: Text("Object Detector App"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.info),
+            onPressed: aboutDialog,
+          ),
+        ],
       ),
       body: Container(
-        color: Colors.black,
-        child: Column(
-          children: <Widget>[
-            Text(
-              _topText,
-              style: TextStyle(color: Colors.white, fontSize: 18),
-            ),
-            _cameraInitialized
-                ? Expanded(
-                    child: OverflowBox(
-                        maxWidth: double.infinity,
-                        child: AspectRatio(
-                            aspectRatio: _controller!.value.aspectRatio,
-                            child: CameraPreview(_controller!))))
-                : Container(),
-          ],
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ButtonTheme(
+                minWidth: 170,
+                child: ElevatedButton(
+                  child: Text("Detect in Image"),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => StaticImage(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              ButtonTheme(
+                minWidth: 160,
+                child: ElevatedButton(
+                  child: Text("Real Time Detection"),
+                  onPressed: () {
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => LiveFeed(cameras),
+                    //   ),
+                    // );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
+    ); // This trailing comma makes auto-formatting nicer for build methods.
+  }
+
+  aboutDialog() {
+    showAboutDialog(
+      context: context,
+      applicationName: "Object Detector App",
+      applicationLegalese: "Keitaroooo",
+      applicationVersion: "0.1",
+      children: <Widget>[
+        Text("techblog.keitaroooo.com"),
+      ],
     );
+  }
+}
+
+void logError(String code, String? message) {
+  if (message != null) {
+    print('Error: $code\nError Message: $message');
+  } else {
+    print('Error: $code');
   }
 }
