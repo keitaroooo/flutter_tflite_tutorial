@@ -64,7 +64,7 @@ class _StaticImageState extends State<StaticImage> {
     if (_imageWidth == null || _imageHeight == null) return [];
 
     double factorX = screen.width;
-    double factorY = _imageHeight! / _imageHeight! * screen.width;
+    double factorY = screen.width;
 
     Color blue = Colors.blue;
 
@@ -169,6 +169,7 @@ class _StaticImageState extends State<StaticImage> {
 
   Future getImageFromGallery() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
+
     setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
