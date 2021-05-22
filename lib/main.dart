@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
 
 import 'package:posenet_app/static_image/static.dart';
+import 'package:posenet_app/realtime/live_camera.dart';
 
 List<CameraDescription> cameras = [];
 
@@ -71,12 +72,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: ElevatedButton(
                   child: Text("Real Time Detection"),
                   onPressed: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => LiveFeed(cameras),
-                    //   ),
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LiveFeed(cameras),
+                      ),
+                    );
                   },
                 ),
               ),
